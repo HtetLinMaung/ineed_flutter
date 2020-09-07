@@ -75,7 +75,7 @@ class _SignupScreenState extends State<SignupScreen> {
         store.setToken(data['token']);
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', data['token']);
-        Navigator.pushNamed(context, BasicInfoScreen.routeName);
+        Navigator.pushReplacementNamed(context, BasicInfoScreen.routeName);
       }
     } catch (err) {
       print(err);

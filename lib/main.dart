@@ -25,7 +25,7 @@ class App extends StatelessWidget {
               color: kLabelColor,
             ),
           )),
-      initialRoute: LandingScreen.routeName,
+      initialRoute: BasicInfoScreen.routeName,
       routes: {
         LandingScreen.routeName: (context) => LandingScreen(),
         LoginScreen.routeName: (context) => LoginScreen(),

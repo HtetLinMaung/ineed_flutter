@@ -13,6 +13,7 @@ class TextInput extends StatelessWidget {
   final bool state;
   final String errorLabel;
   final bool obscureText;
+  final String hintText;
 
   TextInput({
     this.controller,
@@ -20,6 +21,7 @@ class TextInput extends StatelessWidget {
     this.state = true,
     this.errorLabel = '',
     this.obscureText = false,
+    this.hintText = '',
   });
 
   OutlineInputBorder getOutlineInputBorder() {
@@ -50,6 +52,7 @@ class TextInput extends StatelessWidget {
                 ),
               ),
               isDense: true,
+              hintText: hintText,
             ),
             style: kTextStyle,
             controller: controller,
