@@ -7,6 +7,7 @@ import 'package:ineed_flutter/components/form/text_input.dart';
 import 'package:ineed_flutter/constants/api.dart';
 import 'package:ineed_flutter/constants/colors.dart';
 import 'package:ineed_flutter/constants/styles.dart';
+import 'package:ineed_flutter/screens/home_screen.dart';
 import 'package:ineed_flutter/screens/signup_screen.dart';
 import 'package:ineed_flutter/store/app_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -86,22 +87,25 @@ class _LoginScreenState extends State<LoginScreen> {
               );
             },
           );
+          return;
         }
         final prefs = await SharedPreferences.getInstance();
         if (_rememberMe) {
           prefs.setString('email', _emailController.text);
           prefs.setString('password', _passwordController.text);
         }
-        store.setId(data['id']);
+        store.setProfileImage(data['profileImage'].toString().isNotEmpty
+            ? "$host/${data['profileImage']}"
+            : '');
+        store.setUserId(data['id']);
         store.setToken(data['token']);
         store.usernameController.text = data['username'];
-        prefs.setString(
-            'profileImage',
-            data['profileImage'].toString().isNotEmpty
-                ? "$host/${data['profileImage']}"
-                : '');
-        prefs.setString('username', data['token']);
-        prefs.setString('userId', data['userId']);
+
+        prefs.setString('profileImage', store.profileImage);
+        prefs.setString('username', data['username']);
+        prefs.setString('userId', data['id']);
+        prefs.setString('token', data['token']);
+        Navigator.pushReplacementNamed(context, HomeScreen.routeName);
       }
     } catch (err) {
       print(err);
@@ -230,7 +234,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ),
                                   onPressed: _emailController.text.isEmpty ||
-                                          _passwordController.text.isEmpty
+                                          _passwordController.text.isEmpty ||
+                                          context.watch<AppProvider>().loading
                                       ? null
                                       : _loginHandler,
                                   color: kLabelColor,

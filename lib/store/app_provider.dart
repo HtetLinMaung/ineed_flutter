@@ -4,20 +4,25 @@ import 'package:flutter/foundation.dart';
 class AppProvider with ChangeNotifier {
   bool _loading = false;
   String _token = '';
-  TextEditingController _profileImageController = new TextEditingController();
+  String _profileImage = '';
   TextEditingController _usernameController = new TextEditingController();
   String _id = '';
   String _userId = '';
 
   bool get loading => _loading;
   String get token => _token;
-  TextEditingController get profileImageController => _profileImageController;
+  String get profileImage => _profileImage;
   TextEditingController get usernameController => _usernameController;
   String get id => _id;
   String get userId => _userId;
 
   void toggleLoading() {
     _loading = !_loading;
+    notifyListeners();
+  }
+
+  void setProfileImage(String profileImage) {
+    _profileImage = profileImage;
     notifyListeners();
   }
 

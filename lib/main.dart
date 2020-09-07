@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ineed_flutter/constants/colors.dart';
+import 'package:ineed_flutter/screens/basic_info_screen.dart';
+import 'package:ineed_flutter/screens/home_screen.dart';
+import 'package:ineed_flutter/screens/landing_screen.dart';
 import 'package:ineed_flutter/screens/login_screen.dart';
 import 'package:ineed_flutter/screens/signup_screen.dart';
 import 'package:ineed_flutter/store/app_provider.dart';
@@ -22,10 +25,13 @@ class App extends StatelessWidget {
               color: kLabelColor,
             ),
           )),
-      initialRoute: LoginScreen.routeName,
+      initialRoute: LandingScreen.routeName,
       routes: {
+        LandingScreen.routeName: (context) => LandingScreen(),
         LoginScreen.routeName: (context) => LoginScreen(),
         SignupScreen.routeName: (context) => SignupScreen(),
+        HomeScreen.routeName: (context) => HomeScreen(),
+        BasicInfoScreen.routeName: (context) => BasicInfoScreen(),
       },
     );
   }
