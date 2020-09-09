@@ -27,6 +27,7 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _isEmail = true;
   bool _isPassword = true;
   bool _isConfirm = true;
+  bool _loading = false;
 
   void _signupHandler() async {
     try {
@@ -34,7 +35,9 @@ class _SignupScreenState extends State<SignupScreen> {
           _passwordController.text.isNotEmpty &&
           _passwordController.text == _confirmController.text) {
         final store = context.read<AppProvider>();
-        store.toggleLoading();
+        setState(() {
+          _loading = true;
+        });
         final response = await http.put(
           '$api/auth/signup',
           headers: <String, String>{'Content-Type': 'application/json'},
@@ -43,7 +46,9 @@ class _SignupScreenState extends State<SignupScreen> {
             'password': _passwordController.text,
           }),
         );
-        store.toggleLoading();
+        setState(() {
+          _loading = false;
+        });
         final Map<String, dynamic> data = json.decode(response.body);
         print(data);
         if (response.statusCode != 200) {
@@ -75,6 +80,7 @@ class _SignupScreenState extends State<SignupScreen> {
         store.setToken(data['token']);
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', data['token']);
+        Navigator.pop(context);
         Navigator.pushReplacementNamed(context, BasicInfoScreen.routeName);
       }
     } catch (err) {
@@ -94,6 +100,7 @@ class _SignupScreenState extends State<SignupScreen> {
               horizontal: 20.0,
             ),
             child: AbsoluteContainer(
+              loading: _loading,
               child: Center(
                 child: ListView(
                   shrinkWrap: true,
@@ -192,7 +199,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                       _passwordController.text.isEmpty ||
                                       _passwordController.text !=
                                           _confirmController.text ||
-                                      context.watch<AppProvider>().loading
+                                      _loading
                                   ? null
                                   : _signupHandler,
                               color: kLabelColor,

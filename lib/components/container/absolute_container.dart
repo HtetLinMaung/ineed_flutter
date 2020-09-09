@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ineed_flutter/constants/colors.dart';
-import 'package:ineed_flutter/store/app_provider.dart';
-import 'package:provider/provider.dart';
 
 class AbsoluteContainer extends StatelessWidget {
   final Widget child;
+  final bool loading;
 
-  AbsoluteContainer({this.child});
+  AbsoluteContainer({
+    this.child,
+    this.loading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         child,
-        context.watch<AppProvider>().loading
+        loading
             ? Positioned(
                 child: SpinKitChasingDots(
                   color: kLabelColor,

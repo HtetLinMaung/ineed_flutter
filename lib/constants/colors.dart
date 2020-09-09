@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 const kLabelColor = Color(0xff5A6687);
+const kBackgroundColor = Color(0xffF0F5FB);
 
 // purple: "#DEACFE",
 //   background: "#F0F5FB",

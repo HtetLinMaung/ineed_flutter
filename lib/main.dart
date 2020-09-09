@@ -6,11 +6,15 @@ import 'package:ineed_flutter/screens/landing_screen.dart';
 import 'package:ineed_flutter/screens/login_screen.dart';
 import 'package:ineed_flutter/screens/signup_screen.dart';
 import 'package:ineed_flutter/store/app_provider.dart';
+import 'package:ineed_flutter/store/need_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() => runApp(MultiProvider(providers: [
       ChangeNotifierProvider(
         create: (_) => AppProvider(),
+      ),
+      ChangeNotifierProvider(
+        create: (_) => NeedProvider(),
       ),
     ], child: App()));
 
@@ -25,7 +29,7 @@ class App extends StatelessWidget {
               color: kLabelColor,
             ),
           )),
-      initialRoute: BasicInfoScreen.routeName,
+      initialRoute: LandingScreen.routeName,
       routes: {
         LandingScreen.routeName: (context) => LandingScreen(),
         LoginScreen.routeName: (context) => LoginScreen(),

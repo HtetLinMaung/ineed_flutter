@@ -27,6 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isEmail = true;
   bool _isPassword = true;
   bool _rememberMe = false;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -47,7 +48,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (_emailController.text.isNotEmpty &&
           _passwordController.text.isNotEmpty) {
         final store = context.read<AppProvider>();
-        store.toggleLoading();
+        setState(() {
+          _loading = true;
+        });
         final response = await http.post(
           '$api/auth/login',
           headers: <String, String>{
@@ -60,7 +63,9 @@ class _LoginScreenState extends State<LoginScreen> {
             },
           ),
         );
-        store.toggleLoading();
+        setState(() {
+          _loading = false;
+        });
         final Map<String, dynamic> data = json.decode(response.body);
         print(data);
         if (response.statusCode != 200) {
@@ -120,6 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: Colors.white,
         body: SafeArea(
           child: AbsoluteContainer(
+            loading: _loading,
             child: Center(
               child: ListView(
                 shrinkWrap: true,
@@ -235,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   onPressed: _emailController.text.isEmpty ||
                                           _passwordController.text.isEmpty ||
-                                          context.watch<AppProvider>().loading
+                                          _loading
                                       ? null
                                       : _loginHandler,
                                   color: kLabelColor,
