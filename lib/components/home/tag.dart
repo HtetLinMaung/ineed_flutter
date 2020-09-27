@@ -5,12 +5,14 @@ class Tag extends StatefulWidget {
   final String title;
   final bool active;
   final Function onTap;
+  final EdgeInsetsGeometry margin;
 
   const Tag({
     this.color,
     @required this.title,
     this.active = true,
     @required this.onTap,
+    this.margin = const EdgeInsets.symmetric(horizontal: 5),
     Key key,
   }) : super(key: key);
 
@@ -21,28 +23,22 @@ class Tag extends StatefulWidget {
 class _TagState extends State<Tag> {
   double _currentOpacity = 1.0;
 
-  @override
-  void initState() {
-    super.initState();
-    _resetOpacity();
-  }
-
   void _resetOpacity() {
     setState(() {
-      _currentOpacity = widget.active ? 1 : 0.7;
+      _currentOpacity = 1;
+      widget.onTap();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 5),
+      margin: widget.margin,
       child: GestureDetector(
         onTap: () {
           setState(() {
             _currentOpacity = 0.1;
           });
-          widget.onTap();
         },
         child: AnimatedOpacity(
           opacity: _currentOpacity,
@@ -50,14 +46,21 @@ class _TagState extends State<Tag> {
           duration: Duration(
             milliseconds: 150,
           ),
-          child: Chip(
-            backgroundColor: widget.color,
-            label: Text(
-              widget.title,
-              style: TextStyle(
-                fontSize: 12,
-                color:
-                    widget.color == Colors.white ? Colors.black : Colors.white,
+          child: Opacity(
+            opacity: widget.active ? 1 : 0.7,
+            child: Chip(
+              padding: EdgeInsets.symmetric(
+                horizontal: 2,
+              ),
+              backgroundColor: widget.color,
+              label: Text(
+                widget.title,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: widget.color == Colors.white
+                      ? Colors.black
+                      : Colors.white,
+                ),
               ),
             ),
           ),

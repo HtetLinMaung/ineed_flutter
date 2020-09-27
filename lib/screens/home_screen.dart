@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:ineed_flutter/components/container/absolute_container.dart';
+import 'package:ineed_flutter/components/home/need_card.dart';
 import 'package:ineed_flutter/components/home/tag.dart';
 import 'package:ineed_flutter/constants/api.dart';
 import 'package:ineed_flutter/constants/colors.dart';
@@ -30,6 +31,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _loading = true;
+  int _currentTag = 0;
 
   @override
   void initState() {
@@ -96,13 +98,35 @@ class _HomeScreenState extends State<HomeScreen> {
         uniqueTags.add(tag);
       }
     });
-    return uniqueTags;
+
+    return uniqueTags.asMap().entries.map((e) {
+      var active = false;
+      if (e.key == _currentTag) {
+        active = true;
+      }
+      return TagItem(
+        active: active,
+        color: e.value.color,
+        colorString: e.value.colorString,
+        id: e.value.id,
+        title: e.value.title,
+      );
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     final store = context.watch<AppProvider>();
     final uniqueTags = getUniqueTags();
+    var needs = context.watch<NeedProvider>().needs.reversed.toList();
+    if (_currentTag > 0) {
+      needs = needs
+          .where((element) => element.tags
+              .map((e) => e.title)
+              .toList()
+              .contains(uniqueTags[_currentTag].title))
+          .toList();
+    }
 
     return Scaffold(
       backgroundColor: kBackgroundColor,
@@ -181,7 +205,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemBuilder: (context, index) {
                     return Tag(
                       title: uniqueTags[index].title,
-                      onTap: () {},
+                      onTap: () {
+                        setState(() {
+                          _currentTag = index;
+                        });
+                      },
                       active: uniqueTags[index].active,
                       color: uniqueTags[index].color,
                     );
@@ -189,13 +217,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Expanded(
-                child: ListView(
-                  children: [],
+                child: ListView.builder(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20,
+                  ),
+                  itemCount: needs.length,
+                  itemBuilder: (context, index) {
+                    return NeedCard(
+                      item: needs[index],
+                    );
+                  },
                 ),
               ),
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: Icon(Icons.add),
+        backgroundColor: kFabBtnColor,
       ),
     );
   }

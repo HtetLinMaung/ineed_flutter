@@ -38,8 +38,6 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final store = context.watch<AppProvider>();
-
     void _continueHandler() async {
       try {
         FocusScope.of(context).unfocus();
