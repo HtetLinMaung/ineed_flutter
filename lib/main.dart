@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ineed_flutter/constants/colors.dart';
 import 'package:ineed_flutter/screens/basic_info_screen.dart';
+import 'package:ineed_flutter/screens/create_need_screen.dart';
 import 'package:ineed_flutter/screens/home_screen.dart';
 import 'package:ineed_flutter/screens/landing_screen.dart';
 import 'package:ineed_flutter/screens/login_screen.dart';
@@ -36,6 +37,7 @@ class App extends StatelessWidget {
         SignupScreen.routeName: (context) => SignupScreen(),
         HomeScreen.routeName: (context) => HomeScreen(),
         BasicInfoScreen.routeName: (context) => BasicInfoScreen(),
+        CreateNeedScreen.routeName: (context) => CreateNeedScreen()
       },
     );
   }

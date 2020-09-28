@@ -14,6 +14,7 @@ class TextInput extends StatelessWidget {
   final String errorLabel;
   final bool obscureText;
   final String hintText;
+  final int maxLines;
 
   TextInput({
     this.controller,
@@ -22,6 +23,7 @@ class TextInput extends StatelessWidget {
     this.errorLabel = '',
     this.obscureText = false,
     this.hintText = '',
+    this.maxLines = 1,
   });
 
   OutlineInputBorder getOutlineInputBorder() {
@@ -41,8 +43,9 @@ class TextInput extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          height: 40,
+          height: maxLines > 1 ? null : 40,
           child: TextField(
+            maxLines: maxLines,
             decoration: InputDecoration(
               focusedBorder: getOutlineInputBorder(),
               enabledBorder: getOutlineInputBorder(),

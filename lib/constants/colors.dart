@@ -8,7 +8,15 @@ const kStatus = {
   'Satisfied': Colors.green,
 };
 const kFabBtnColor = Color(0xff3F9FFF);
-
+const kTagColors = [
+  "#ffffff",
+  "#DEACFE",
+  "#3F9FFF",
+  "#F082AC",
+  "#FFC999",
+  "#C2CFDB"
+];
+const kPinkColor = Color(0xffF082AC);
 // purple: "#DEACFE",
 //   background: "#F0F5FB",
 //   underlined: "#EBEFF3",

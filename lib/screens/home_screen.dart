@@ -8,6 +8,7 @@ import 'package:ineed_flutter/constants/api.dart';
 import 'package:ineed_flutter/constants/colors.dart';
 import 'package:ineed_flutter/models/NeedItem.dart';
 import 'package:ineed_flutter/models/TagItem.dart';
+import 'package:ineed_flutter/screens/create_need_screen.dart';
 import 'package:ineed_flutter/screens/landing_screen.dart';
 import 'package:ineed_flutter/store/app_provider.dart';
 import 'package:ineed_flutter/store/need_provider.dart';
@@ -234,7 +235,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () =>
+            Navigator.pushNamed(context, CreateNeedScreen.routeName),
         child: Icon(Icons.add),
         backgroundColor: kFabBtnColor,
       ),
