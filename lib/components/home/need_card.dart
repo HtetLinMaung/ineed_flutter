@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:ineed_flutter/components/home/tag.dart';
+import 'package:ineed_flutter/components/touchable/touchable_opacity.dart';
 import 'package:ineed_flutter/constants/api.dart';
 import 'package:ineed_flutter/constants/colors.dart';
+import 'package:ineed_flutter/models/Menu.dart';
 import 'package:ineed_flutter/models/NeedItem.dart';
 import 'package:ineed_flutter/store/app_provider.dart';
+import 'package:ineed_flutter/store/need_provider.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:flutter/animation.dart';
 import 'package:provider/provider.dart';
+import 'package:vibration/vibration.dart';
 
 const kFontSize = TextStyle(fontSize: 12);
 
@@ -26,10 +30,69 @@ class _NeedCardState extends State<NeedCard>
     with SingleTickerProviderStateMixin {
   Animation<double> animation;
   AnimationController controller;
+  List<Menu> menus = [];
 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      menus = [
+        Menu(
+            icon: Icons.visibility_off,
+            text: "Hide",
+            onTap: () {
+              final store = context.read<NeedProvider>();
+              store.setNeed(store.needs
+                  .where((element) => element.id != widget.item.id)
+                  .toList());
+            }),
+        Menu(
+          icon: Icons.details,
+          text: 'Detail',
+          onTap: () {},
+        ),
+        Menu(
+          icon: Icons.edit,
+          text: 'Edit',
+          onTap: () {},
+        ),
+        Menu(
+          icon: Icons.delete,
+          text: 'Delete',
+          onTap: () {
+            showDialog<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Are you sure?'),
+                  content: SingleChildScrollView(
+                    child: ListBody(
+                      children: <Widget>[
+                        Text('This will delete permenantly from Database!'),
+                      ],
+                    ),
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    FlatButton(
+                      child: Text('Ok'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        ),
+      ];
+    });
     controller = AnimationController(
         duration: Duration(
           milliseconds: 150,
@@ -48,6 +111,53 @@ class _NeedCardState extends State<NeedCard>
     });
   }
 
+  Future<void> _showSettings() async {
+    context.read<AppProvider>().setId(widget.item.id);
+    if (await Vibration.hasVibrator()) {
+      Vibration.vibrate(duration: 1);
+    }
+
+    showModalBottomSheet(
+      barrierColor: Colors.white10,
+      backgroundColor: Colors.white,
+      context: context,
+      builder: (context) {
+        return Container(
+          height: 70,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: menus
+                .map((e) => TouchableOpacity(
+                      onTap: () {
+                        Navigator.pop(context);
+                        e.onTap();
+                      },
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            e.icon,
+                            size: 22,
+                            color: kLabelColor,
+                          ),
+                          Text(
+                            e.text,
+                            style: TextStyle(
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ))
+                .toList(),
+          ),
+        );
+      },
+    );
+    controller.reverse();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -58,6 +168,7 @@ class _NeedCardState extends State<NeedCard>
       onLongPressStart: (detail) {
         controller.forward();
       },
+      onLongPress: _showSettings,
       child: ScaleTransition(
         scale: animation,
         child: Card(

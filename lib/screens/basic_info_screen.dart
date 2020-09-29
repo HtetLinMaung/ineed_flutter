@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ineed_flutter/components/container/absolute_container.dart';
 import 'package:ineed_flutter/components/form/text_input.dart';
+import 'package:ineed_flutter/components/touchable/touchable_opacity.dart';
 import 'package:ineed_flutter/constants/api.dart';
 import 'package:ineed_flutter/constants/colors.dart';
 import 'package:ineed_flutter/constants/styles.dart';
@@ -23,7 +24,6 @@ class BasicInfoScreen extends StatefulWidget {
 }
 
 class _BasicInfoScreenState extends State<BasicInfoScreen> {
-  double _currentOpacity = 1;
   String _profileImage = '';
   bool _loading = false;
   TextEditingController _usernameController = TextEditingController();
@@ -36,83 +36,83 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
     });
   }
 
+  void _continueHandler() async {
+    try {
+      FocusScope.of(context).unfocus();
+      final store = context.read<AppProvider>();
+      final request =
+          http.MultipartRequest('PUT', Uri.parse('$api/auth/edit-profile'));
+      request.headers['Authorization'] = 'Bearer ${store.token}';
+      request.fields['username'] = _usernameController.text;
+      final filename = _profileImage.split('/').removeLast();
+      final match = RegExp(r'\.(\w+)$').stringMatch(filename);
+      final profileImage = await http.MultipartFile.fromPath(
+        'profileImage',
+        _profileImage,
+        filename: filename,
+        contentType: MediaType('image', match.replaceAll('\.', '')),
+      );
+
+      request.files.add(profileImage);
+      setState(() {
+        _loading = true;
+      });
+      final response = await request.send();
+      setState(() {
+        _loading = false;
+      });
+
+      final responseData = await response.stream.toBytes();
+      final responseString = String.fromCharCodes(responseData);
+
+      final Map<String, dynamic> data = json.decode(responseString);
+      print(data);
+      if (data['status'] != 1) {
+        showDialog<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Something went wrong!'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text(data['message']),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Ok'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+
+      final prefs = await SharedPreferences.getInstance();
+      store.setProfileImage(data['data']['profileImage'].isNotEmpty
+          ? 'https://hlm-ineed.herokuapp.com/${data['data']['profileImage']}'
+          : '');
+      store.usernameController.text = data['data']['username'];
+      prefs.setString(
+          'profileImage',
+          data['data']['profileImage'].isNotEmpty
+              ? 'https://hlm-ineed.herokuapp.com/${data['data']['profileImage']}'
+              : '');
+      prefs.setString('username', data['data']['username']);
+      Navigator.pushReplacementNamed(context, HomeScreen.routeName);
+    } catch (err) {
+      print(err);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    void _continueHandler() async {
-      try {
-        FocusScope.of(context).unfocus();
-        final store = context.read<AppProvider>();
-        final request =
-            http.MultipartRequest('PUT', Uri.parse('$api/auth/edit-profile'));
-        request.headers['Authorization'] = 'Bearer ${store.token}';
-        request.fields['username'] = _usernameController.text;
-        final filename = _profileImage.split('/').removeLast();
-        final match = RegExp(r'\.(\w+)$').stringMatch(filename);
-        final profileImage = await http.MultipartFile.fromPath(
-          'profileImage',
-          _profileImage,
-          filename: filename,
-          contentType: MediaType('image', match.replaceAll('\.', '')),
-        );
-
-        request.files.add(profileImage);
-        setState(() {
-          _loading = true;
-        });
-        final response = await request.send();
-        setState(() {
-          _loading = false;
-        });
-
-        final responseData = await response.stream.toBytes();
-        final responseString = String.fromCharCodes(responseData);
-
-        final Map<String, dynamic> data = json.decode(responseString);
-        print(data);
-        if (data['status'] != 1) {
-          showDialog<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('Something went wrong!'),
-                content: SingleChildScrollView(
-                  child: ListBody(
-                    children: <Widget>[
-                      Text(data['message']),
-                    ],
-                  ),
-                ),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text('Ok'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-          return;
-        }
-
-        final prefs = await SharedPreferences.getInstance();
-        store.setProfileImage(data['data']['profileImage'].isNotEmpty
-            ? 'https://hlm-ineed.herokuapp.com/${data['data']['profileImage']}'
-            : '');
-        store.usernameController.text = data['data']['username'];
-        prefs.setString(
-            'profileImage',
-            data['data']['profileImage'].isNotEmpty
-                ? 'https://hlm-ineed.herokuapp.com/${data['data']['profileImage']}'
-                : '');
-        prefs.setString('username', data['data']['username']);
-        Navigator.pushReplacementNamed(context, HomeScreen.routeName);
-      } catch (err) {
-        print(err);
-      }
-    }
-
     return GestureDetector(
       onTap: FocusScope.of(context).unfocus,
       child: Scaffold(
@@ -141,32 +141,18 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          _getImage();
-                          setState(() {
-                            _currentOpacity = 0.6;
-                          });
-                        },
-                        child: AnimatedOpacity(
-                          duration: Duration(milliseconds: 150),
-                          opacity: _currentOpacity,
-                          onEnd: () {
-                            setState(() {
-                              _currentOpacity = 1;
-                            });
-                          },
-                          child: CircleAvatar(
-                            radius: 75,
-                            backgroundImage: _profileImage.isEmpty
-                                ? AssetImage(
-                                    'assets/images/avatar-placeholder.webp')
-                                : FileImage(
-                                    File(
-                                      _profileImage,
-                                    ),
+                      TouchableOpacity(
+                        onTap: _getImage,
+                        child: CircleAvatar(
+                          radius: 75,
+                          backgroundImage: _profileImage.isEmpty
+                              ? AssetImage(
+                                  'assets/images/avatar-placeholder.webp')
+                              : FileImage(
+                                  File(
+                                    _profileImage,
                                   ),
-                          ),
+                                ),
                         ),
                       ),
                     ],

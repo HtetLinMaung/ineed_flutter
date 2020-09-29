@@ -5,6 +5,7 @@ import 'package:ineed_flutter/components/container/absolute_container.dart';
 import 'package:ineed_flutter/components/form/input_label.dart';
 import 'package:ineed_flutter/components/form/text_input.dart';
 import 'package:ineed_flutter/components/home/tag.dart';
+import 'package:ineed_flutter/components/touchable/touchable_opacity.dart';
 import 'package:ineed_flutter/constants/api.dart';
 import 'package:ineed_flutter/constants/colors.dart';
 import 'package:ineed_flutter/models/ColorData.dart';
@@ -43,14 +44,6 @@ class _CreateNeedScreenState extends State<CreateNeedScreen> {
           ))
       .toList();
   List<TagItem> _tags = [];
-  Map<String, double> _colorsOpacity = {
-    "#ffffff": 1.0,
-    "#DEACFE": 1.0,
-    "#3F9FFF": 1.0,
-    "#F082AC": 1.0,
-    "#FFC999": 1.0,
-    "#C2CFDB": 1.0,
-  };
 
   @override
   void initState() {
@@ -65,15 +58,8 @@ class _CreateNeedScreenState extends State<CreateNeedScreen> {
     _completeEditingHandler();
   }
 
-  void _resetOpacity(String code) {
-    setState(() {
-      _colorsOpacity[code] = 1;
-    });
-  }
-
   void _colorTapHandler(String code) {
     setState(() {
-      _colorsOpacity[code] = 0.1;
       _tagColors = _tagColors.map((e) {
         e.selected = false;
         if (e.code == code) {
@@ -209,31 +195,24 @@ class _CreateNeedScreenState extends State<CreateNeedScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: _tagColors
-                            .map((e) => GestureDetector(
+                            .map((e) => TouchableOpacity(
                                   onTap: () => _colorTapHandler(e.code),
-                                  child: AnimatedOpacity(
-                                    duration: Duration(
-                                      milliseconds: 300,
-                                    ),
-                                    opacity: _colorsOpacity[e.code],
-                                    onEnd: () => _resetOpacity(e.code),
-                                    child: Container(
-                                      width: kSize,
-                                      height: kSize,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(kSize / 2),
-                                          color: e.color),
-                                      child: e.selected
-                                          ? Center(
-                                              child: Icon(
-                                                Icons.check,
-                                                color: kLabelColor,
-                                                size: 16,
-                                              ),
-                                            )
-                                          : null,
-                                    ),
+                                  child: Container(
+                                    width: kSize,
+                                    height: kSize,
+                                    decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(kSize / 2),
+                                        color: e.color),
+                                    child: e.selected
+                                        ? Center(
+                                            child: Icon(
+                                              Icons.check,
+                                              color: kLabelColor,
+                                              size: 16,
+                                            ),
+                                          )
+                                        : null,
                                   ),
                                 ))
                             .toList(),

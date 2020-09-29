@@ -14,6 +14,7 @@ import 'package:ineed_flutter/store/app_provider.dart';
 import 'package:ineed_flutter/store/need_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 enum Profile { edit, logout }
 
@@ -37,6 +38,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    IO.Socket socket = IO.io(host);
+    socket.on('needs', (_) => _fetchNeeds());
     _fetchNeeds();
   }
 
@@ -225,6 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemCount: needs.length,
                   itemBuilder: (context, index) {
                     return NeedCard(
+                      key: Key(needs[index].id),
                       item: needs[index],
                     );
                   },
