@@ -9,7 +9,6 @@ import 'package:ineed_flutter/constants/colors.dart';
 import 'package:ineed_flutter/constants/utils.dart';
 import 'package:ineed_flutter/models/NeedItem.dart';
 import 'package:http/http.dart' as http;
-import 'package:ineed_flutter/models/TagItem.dart';
 import 'package:ineed_flutter/screens/edit_need_screen.dart';
 import 'package:ineed_flutter/screens/home_screen.dart';
 import 'package:ineed_flutter/store/app_provider.dart';

@@ -3,6 +3,7 @@ import 'package:ineed_flutter/constants/colors.dart';
 import 'package:ineed_flutter/screens/basic_info_screen.dart';
 import 'package:ineed_flutter/screens/create_need_screen.dart';
 import 'package:ineed_flutter/screens/edit_need_screen.dart';
+import 'package:ineed_flutter/screens/edit_profile_screen.dart';
 import 'package:ineed_flutter/screens/home_screen.dart';
 import 'package:ineed_flutter/screens/landing_screen.dart';
 import 'package:ineed_flutter/screens/login_screen.dart';
@@ -42,6 +43,7 @@ class App extends StatelessWidget {
         CreateNeedScreen.routeName: (context) => CreateNeedScreen(),
         EditNeedScreen.routeName: (context) => EditNeedScreen(),
         NeedDetailScreen.routeName: (context) => NeedDetailScreen(),
+        EditProfileScreen.routeName: (context) => EditProfileScreen(),
       },
     );
   }

@@ -9,6 +9,7 @@ import 'package:ineed_flutter/constants/colors.dart';
 import 'package:ineed_flutter/models/NeedItem.dart';
 import 'package:ineed_flutter/models/TagItem.dart';
 import 'package:ineed_flutter/screens/create_need_screen.dart';
+import 'package:ineed_flutter/screens/edit_profile_screen.dart';
 import 'package:ineed_flutter/screens/landing_screen.dart';
 import 'package:ineed_flutter/store/app_provider.dart';
 import 'package:ineed_flutter/store/need_provider.dart';
@@ -161,7 +162,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       onSelected: (profile) {
                         if (profile == Profile.logout) {
                           _logoutHandler();
-                        } else {}
+                        } else {
+                          Navigator.pushNamed(
+                              context, EditProfileScreen.routeName);
+                        }
                       },
                       itemBuilder: (context) => <PopupMenuEntry<Profile>>[
                         const PopupMenuItem<Profile>(

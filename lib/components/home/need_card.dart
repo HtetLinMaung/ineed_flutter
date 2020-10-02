@@ -14,7 +14,6 @@ import 'package:jiffy/jiffy.dart';
 import 'package:flutter/animation.dart';
 import 'package:provider/provider.dart';
 import 'package:vibration/vibration.dart';
-import 'package:http/http.dart' as http;
 
 const kFontSize = TextStyle(fontSize: 12);
 
@@ -66,6 +65,9 @@ class _NeedCardState extends State<NeedCard>
           onTap: () => showDeleteDialog(context),
         ),
       ];
+      if (widget.item.user.id != context.read<AppProvider>().userId) {
+        menus = menus.sublist(0, 2);
+      }
     });
     controller = AnimationController(
         duration: Duration(
