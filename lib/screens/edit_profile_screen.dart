@@ -16,39 +16,36 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class BasicInfoScreen extends StatefulWidget {
-  static const routeName = 'BasicInfoScreen';
+class EditProfileScreen extends StatefulWidget {
+  static const routeName = 'EditProfileScreen';
 
   @override
-  _BasicInfoScreenState createState() => _BasicInfoScreenState();
+  _EditProfileScreenState createState() => _EditProfileScreenState();
 }
 
-class _BasicInfoScreenState extends State<BasicInfoScreen> {
-  String _profileImage = '';
+class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _loading = false;
-  TextEditingController _usernameController = TextEditingController();
+
   final picker = ImagePicker();
 
   Future<void> _getImage() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
-    setState(() {
-      _profileImage = pickedFile.path;
-    });
+    context.read<AppProvider>().setProfileImage(pickedFile.path);
   }
 
-  Future<void> _continueHandler() async {
+  Future<void> _updateHandler() async {
     try {
       FocusScope.of(context).unfocus();
       final store = context.read<AppProvider>();
       final request =
           http.MultipartRequest('PUT', Uri.parse('$api/auth/edit-profile'));
       request.headers['Authorization'] = 'Bearer ${store.token}';
-      request.fields['username'] = _usernameController.text;
-      final filename = _profileImage.split('/').removeLast();
+      request.fields['username'] = store.usernameController.text;
+      final filename = store.profileImage.split('/').removeLast();
       final match = RegExp(r'\.(\w+)$').stringMatch(filename);
       final profileImage = await http.MultipartFile.fromPath(
         'profileImage',
-        _profileImage,
+        store.profileImage,
         filename: filename,
         contentType: MediaType('image', match.replaceAll('\.', '')),
       );
@@ -113,6 +110,8 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final store = context.watch<AppProvider>();
+
     return GestureDetector(
       onTap: FocusScope.of(context).unfocus,
       child: Scaffold(
@@ -133,7 +132,7 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
                       bottom: 10,
                     ),
                     child: Text(
-                      'Basic Info',
+                      'Profile',
                       style: kHeaderStyle,
                       textAlign: TextAlign.center,
                     ),
@@ -145,12 +144,12 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
                         onTap: _getImage,
                         child: CircleAvatar(
                           radius: 75,
-                          backgroundImage: _profileImage.isEmpty
+                          backgroundImage: store.profileImage.isEmpty
                               ? AssetImage(
                                   'assets/images/avatar-placeholder.webp')
                               : FileImage(
                                   File(
-                                    _profileImage,
+                                    store.profileImage,
                                   ),
                                 ),
                         ),
@@ -174,7 +173,7 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
                   ),
                   TextInput(
                     hintText: 'Enter your name',
-                    controller: _usernameController,
+                    controller: store.usernameController,
                     errorLabel: 'Email must not be empty!',
                   ),
                   Row(
@@ -196,13 +195,13 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
                                 vertical: 12,
                               ),
                               child: Text(
-                                'Continue',
+                                'Update',
                                 style: TextStyle(
                                   fontSize: 15,
                                 ),
                               ),
                             ),
-                            onPressed: !_loading ? _continueHandler : null,
+                            onPressed: !_loading ? _updateHandler : null,
                             color: kLabelColor,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(22.0),
