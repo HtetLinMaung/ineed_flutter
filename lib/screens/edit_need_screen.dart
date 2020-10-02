@@ -9,6 +9,7 @@ import 'package:ineed_flutter/components/touchable/touchable_opacity.dart';
 import 'package:ineed_flutter/constants/api.dart';
 import 'package:ineed_flutter/constants/colors.dart';
 import 'package:ineed_flutter/models/ColorData.dart';
+import 'package:ineed_flutter/models/NeedItem.dart';
 import 'package:ineed_flutter/models/TagItem.dart';
 import 'package:http/http.dart' as http;
 import 'package:ineed_flutter/screens/home_screen.dart';
@@ -22,14 +23,14 @@ const kTitleStyle = TextStyle(
 
 const kSize = 30.0;
 
-class CreateNeedScreen extends StatefulWidget {
-  static const routeName = 'CreateNeedScreen';
+class EditNeedScreen extends StatefulWidget {
+  static const routeName = 'EditNeedScreen';
 
   @override
-  _CreateNeedScreenState createState() => _CreateNeedScreenState();
+  _EditNeedScreenState createState() => _EditNeedScreenState();
 }
 
-class _CreateNeedScreenState extends State<CreateNeedScreen> {
+class _EditNeedScreenState extends State<EditNeedScreen> {
   bool _loading = false;
   TextEditingController _headerController = TextEditingController();
   TextEditingController _bodyController = TextEditingController();
@@ -44,6 +45,7 @@ class _CreateNeedScreenState extends State<CreateNeedScreen> {
           ))
       .toList();
   List<TagItem> _tags = [];
+  bool _isSatisfied = false;
 
   @override
   void initState() {
@@ -51,6 +53,39 @@ class _CreateNeedScreenState extends State<CreateNeedScreen> {
     setState(() {
       _tagColors[0].selected = true;
     });
+    _fetchNeed();
+  }
+
+  Future<void> _fetchNeed() async {
+    try {
+      final store = context.read<AppProvider>();
+      setState(() {
+        _loading = true;
+      });
+      final response = await http.get(
+        '$api/needs/${store.id}',
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${store.token}'
+        },
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        final item = NeedItem.fromJson(json.decode(response.body)['data']);
+        setState(() {
+          _loading = false;
+          _headerController.text = item.header;
+          _bodyController.text = item.body;
+          _tags = item.tags;
+          _isSatisfied = item.status != "In progress";
+        });
+      }
+    } catch (err) {
+      print(err);
+      setState(() {
+        _loading = false;
+      });
+    }
   }
 
   void _unfocus() {
@@ -86,32 +121,35 @@ class _CreateNeedScreenState extends State<CreateNeedScreen> {
     }
   }
 
-  Future<void> _saveHandler() async {
+  Future<void> _updateHandler() async {
     try {
       final store = context.read<AppProvider>();
       setState(() {
         _loading = true;
       });
-      final response = await http.post('$api/needs',
+      final response = await http.put('$api/needs/${store.id}',
           headers: <String, String>{
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ${store.token}'
           },
-          body: jsonEncode(<String, dynamic>{
-            'header': _headerController.text,
-            'body': _bodyController.text,
-            'tags': _tags
-                .map((e) => ({
-                      'title': e.title,
-                      'color': e.colorString,
-                    }))
-                .toList()
-          }));
+          body: jsonEncode(
+            <String, dynamic>{
+              'header': _headerController.text,
+              'body': _bodyController.text,
+              'tags': _tags
+                  .map((e) => ({
+                        'title': e.title,
+                        'color': e.colorString,
+                      }))
+                  .toList(),
+              'status': _isSatisfied,
+            },
+          ));
       setState(() {
         _loading = false;
       });
       print(response.body);
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         Navigator.pushNamed(context, HomeScreen.routeName);
       }
     } catch (err) {
@@ -145,10 +183,26 @@ class _CreateNeedScreenState extends State<CreateNeedScreen> {
                       margin: EdgeInsets.only(
                         bottom: 15,
                       ),
-                      child: Text(
-                        'Propose Need',
-                        style: kTitleStyle,
-                        textAlign: TextAlign.center,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Edit Need',
+                            style: kTitleStyle,
+                            textAlign: TextAlign.center,
+                          ),
+                          Checkbox(
+                              activeColor: kLabelColor,
+                              value: _isSatisfied,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              onChanged: (checked) {
+                                setState(() {
+                                  _isSatisfied = checked;
+                                });
+                              }),
+                        ],
                       ),
                     ),
                     InputLabel(
@@ -260,7 +314,7 @@ class _CreateNeedScreenState extends State<CreateNeedScreen> {
                                 vertical: 12,
                               ),
                               child: Text(
-                                'Save',
+                                'Update',
                                 style: TextStyle(
                                   fontSize: 15,
                                 ),
@@ -270,7 +324,7 @@ class _CreateNeedScreenState extends State<CreateNeedScreen> {
                                     _bodyController.text.isEmpty ||
                                     _loading
                                 ? null
-                                : _saveHandler,
+                                : _updateHandler,
                             color: kPinkColor,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(22.0),

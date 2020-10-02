@@ -3,14 +3,18 @@ import 'package:ineed_flutter/components/home/tag.dart';
 import 'package:ineed_flutter/components/touchable/touchable_opacity.dart';
 import 'package:ineed_flutter/constants/api.dart';
 import 'package:ineed_flutter/constants/colors.dart';
+import 'package:ineed_flutter/constants/utils.dart';
 import 'package:ineed_flutter/models/Menu.dart';
 import 'package:ineed_flutter/models/NeedItem.dart';
+import 'package:ineed_flutter/screens/edit_need_screen.dart';
+import 'package:ineed_flutter/screens/need_detail_screen.dart';
 import 'package:ineed_flutter/store/app_provider.dart';
 import 'package:ineed_flutter/store/need_provider.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:flutter/animation.dart';
 import 'package:provider/provider.dart';
 import 'package:vibration/vibration.dart';
+import 'package:http/http.dart' as http;
 
 const kFontSize = TextStyle(fontSize: 12);
 
@@ -49,47 +53,17 @@ class _NeedCardState extends State<NeedCard>
         Menu(
           icon: Icons.details,
           text: 'Detail',
-          onTap: () {},
+          onTap: () => Navigator.pushNamed(context, NeedDetailScreen.routeName),
         ),
         Menu(
           icon: Icons.edit,
           text: 'Edit',
-          onTap: () {},
+          onTap: () => Navigator.pushNamed(context, EditNeedScreen.routeName),
         ),
         Menu(
           icon: Icons.delete,
           text: 'Delete',
-          onTap: () {
-            showDialog<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text('Are you sure?'),
-                  content: SingleChildScrollView(
-                    child: ListBody(
-                      children: <Widget>[
-                        Text('This will delete permenantly from Database!'),
-                      ],
-                    ),
-                  ),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text('Cancel'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    FlatButton(
-                      child: Text('Ok'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
-          },
+          onTap: () => showDeleteDialog(context),
         ),
       ];
     });
@@ -107,7 +81,9 @@ class _NeedCardState extends State<NeedCard>
   void _toDatail() {
     context.read<AppProvider>().setId(widget.item.id);
     controller.forward().whenComplete(() {
-      controller.reverse();
+      controller.reverse().whenComplete(() {
+        Navigator.pushNamed(context, NeedDetailScreen.routeName);
+      });
     });
   }
 

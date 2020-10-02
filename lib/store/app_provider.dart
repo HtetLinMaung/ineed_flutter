@@ -8,12 +8,14 @@ class AppProvider with ChangeNotifier {
   TextEditingController _usernameController = new TextEditingController();
   String _id = '';
   String _userId = '';
+  bool _loading = true;
 
   String get token => _token;
   String get profileImage => _profileImage;
   TextEditingController get usernameController => _usernameController;
   String get id => _id;
   String get userId => _userId;
+  bool get loading => _loading;
 
   void setProfileImage(String profileImage) {
     _profileImage = profileImage;
@@ -32,6 +34,11 @@ class AppProvider with ChangeNotifier {
 
   void setUserId(String userId) {
     _userId = userId;
+    notifyListeners();
+  }
+
+  void setLoading(bool loading) {
+    _loading = loading;
     notifyListeners();
   }
 

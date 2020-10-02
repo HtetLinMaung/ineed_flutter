@@ -29,14 +29,14 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
   TextEditingController _usernameController = TextEditingController();
   final picker = ImagePicker();
 
-  Future _getImage() async {
+  Future<void> _getImage() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     setState(() {
       _profileImage = pickedFile.path;
     });
   }
 
-  void _continueHandler() async {
+  Future<void> _continueHandler() async {
     try {
       FocusScope.of(context).unfocus();
       final store = context.read<AppProvider>();

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:ineed_flutter/constants/colors.dart';
 import 'package:ineed_flutter/screens/basic_info_screen.dart';
 import 'package:ineed_flutter/screens/create_need_screen.dart';
+import 'package:ineed_flutter/screens/edit_need_screen.dart';
 import 'package:ineed_flutter/screens/home_screen.dart';
 import 'package:ineed_flutter/screens/landing_screen.dart';
 import 'package:ineed_flutter/screens/login_screen.dart';
+import 'package:ineed_flutter/screens/need_detail_screen.dart';
 import 'package:ineed_flutter/screens/signup_screen.dart';
 import 'package:ineed_flutter/store/app_provider.dart';
 import 'package:ineed_flutter/store/need_provider.dart';
@@ -37,7 +39,9 @@ class App extends StatelessWidget {
         SignupScreen.routeName: (context) => SignupScreen(),
         HomeScreen.routeName: (context) => HomeScreen(),
         BasicInfoScreen.routeName: (context) => BasicInfoScreen(),
-        CreateNeedScreen.routeName: (context) => CreateNeedScreen()
+        CreateNeedScreen.routeName: (context) => CreateNeedScreen(),
+        EditNeedScreen.routeName: (context) => EditNeedScreen(),
+        NeedDetailScreen.routeName: (context) => NeedDetailScreen(),
       },
     );
   }

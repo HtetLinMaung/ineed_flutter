@@ -32,21 +32,26 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool _loading = true;
   int _currentTag = 0;
 
   @override
   void initState() {
     super.initState();
-    IO.Socket socket = IO.io(host);
-    socket.on('needs', (_) => _fetchNeeds());
+    IO.Socket socket = IO.io(host, <String, dynamic>{
+      'transports': ['websocket'],
+    });
+    socket.on('needs', (_) {
+      _fetchNeeds();
+    });
     _fetchNeeds();
   }
 
   void _fetchNeeds() async {
+    final store = context.read<AppProvider>();
     try {
-      final store = context.read<AppProvider>();
-
+      if (!store.loading) {
+        store.setLoading(true);
+      }
       final response = await http.get(
         '$api/needs',
         headers: <String, String>{
@@ -54,9 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
           'Authorization': 'Bearer ${store.token}',
         },
       );
-      setState(() {
-        _loading = false;
-      });
+      store.setLoading(false);
       if (response.statusCode != 200) {
         return;
       }
@@ -67,9 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
           data.map((e) => NeedItem.fromJson(e)).toList();
       context.read<NeedProvider>().setNeed(needs);
     } catch (err) {
-      setState(() {
-        _loading = false;
-      });
+      store.setLoading(false);
       print(err);
     }
   }
@@ -136,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: kBackgroundColor,
       body: SafeArea(
         child: AbsoluteContainer(
-          loading: _loading,
+          loading: store.loading,
           child: Column(
             children: [
               Container(
