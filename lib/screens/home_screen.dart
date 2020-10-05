@@ -61,11 +61,16 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       );
       store.setLoading(false);
+      print(response.body);
+      var body = json.decode(response.body);
+      if (response.statusCode == 500 && body['message'] == 'jwt expired') {
+        _logoutHandler();
+      }
       if (response.statusCode != 200) {
         return;
       }
 
-      final List<dynamic> data = json.decode(response.body)['data'];
+      final List<dynamic> data = body['data'];
       print(data);
       final List<NeedItem> needs =
           data.map((e) => NeedItem.fromJson(e)).toList();

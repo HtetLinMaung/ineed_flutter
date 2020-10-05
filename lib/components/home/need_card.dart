@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:ineed_flutter/components/home/tag.dart';
 import 'package:ineed_flutter/components/touchable/touchable_opacity.dart';
@@ -14,6 +16,7 @@ import 'package:jiffy/jiffy.dart';
 import 'package:flutter/animation.dart';
 import 'package:provider/provider.dart';
 import 'package:vibration/vibration.dart';
+import 'package:http/http.dart' as http;
 
 const kFontSize = TextStyle(fontSize: 12);
 
@@ -55,6 +58,39 @@ class _NeedCardState extends State<NeedCard>
           onTap: () => Navigator.pushNamed(context, NeedDetailScreen.routeName),
         ),
         Menu(
+          icon: Icons.check_circle,
+          text: 'Satisfy',
+          onTap: () async {
+            final store = context.read<AppProvider>();
+            try {
+              store.setLoading(true);
+              final response = await http.put('$api/needs/${store.id}',
+                  headers: <String, String>{
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ${store.token}'
+                  },
+                  body: jsonEncode(
+                    <String, dynamic>{
+                      'header': widget.item.header,
+                      'body': widget.item.body,
+                      'tags': widget.item.tags
+                          .map((e) => ({
+                                'title': e.title,
+                                'color': e.colorString,
+                              }))
+                          .toList(),
+                      'status': true,
+                    },
+                  ));
+              store.setLoading(false);
+              print(response.body);
+            } catch (err) {
+              store.setLoading(false);
+              print(err);
+            }
+          },
+        ),
+        Menu(
           icon: Icons.edit,
           text: 'Edit',
           onTap: () => Navigator.pushNamed(context, EditNeedScreen.routeName),
@@ -70,10 +106,11 @@ class _NeedCardState extends State<NeedCard>
       }
     });
     controller = AnimationController(
-        duration: Duration(
-          milliseconds: 150,
-        ),
-        vsync: this);
+      duration: Duration(
+        milliseconds: 150,
+      ),
+      vsync: this,
+    );
     animation = Tween<double>(begin: 1, end: 0.95).animate(controller)
       ..addListener(() {
         setState(() {});
