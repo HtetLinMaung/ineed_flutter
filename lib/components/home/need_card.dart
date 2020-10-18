@@ -272,6 +272,7 @@ class _NeedCardState extends State<NeedCard>
                         widget.item.body,
                         style: kFontSize,
                         overflow: TextOverflow.ellipsis,
+                        maxLines: 3,
                       ),
                     ],
                   ),
