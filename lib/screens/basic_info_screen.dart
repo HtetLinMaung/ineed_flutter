@@ -27,6 +27,7 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
   String _profileImage = '';
   bool _loading = false;
   TextEditingController _usernameController = TextEditingController();
+  bool _isUsername = true;
   final picker = ImagePicker();
 
   Future<void> _getImage() async {
@@ -40,6 +41,7 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
     try {
       FocusScope.of(context).unfocus();
       final store = context.read<AppProvider>();
+
       final request =
           http.MultipartRequest('PUT', Uri.parse('$api/auth/edit-profile'));
       request.headers['Authorization'] = 'Bearer ${store.token}';
@@ -175,7 +177,16 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
                   TextInput(
                     hintText: 'Enter your name',
                     controller: _usernameController,
-                    errorLabel: 'Email must not be empty!',
+                    errorLabel: 'Username must not be empty!',
+                    state: _isUsername,
+                    onChange: (text) {
+                      setState(() {
+                        _isUsername = true;
+                        if (text.isEmpty) {
+                          _isUsername = false;
+                        }
+                      });
+                    },
                   ),
                   Row(
                     children: [
@@ -202,7 +213,11 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
                                 ),
                               ),
                             ),
-                            onPressed: !_loading ? _continueHandler : null,
+                            onPressed: !_loading &&
+                                    _usernameController.text.isNotEmpty &&
+                                    _profileImage.isNotEmpty
+                                ? _continueHandler
+                                : null,
                             color: kLabelColor,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(22.0),
