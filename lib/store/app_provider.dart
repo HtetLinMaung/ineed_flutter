@@ -5,17 +5,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AppProvider with ChangeNotifier {
   String _token = '';
   String _profileImage = '';
-  TextEditingController _usernameController = new TextEditingController();
+  String _username = '';
   String _id = '';
   String _userId = '';
   bool _loading = true;
 
   String get token => _token;
   String get profileImage => _profileImage;
-  TextEditingController get usernameController => _usernameController;
+  String get username => _username;
   String get id => _id;
   String get userId => _userId;
   bool get loading => _loading;
+
+  void setUsername(String username) {
+    _username = username;
+    notifyListeners();
+  }
 
   void setProfileImage(String profileImage) {
     _profileImage = profileImage;
@@ -45,7 +50,7 @@ class AppProvider with ChangeNotifier {
   void reset() async {
     _token = '';
     _profileImage = '';
-    _usernameController.text = '';
+    _username = '';
     _id = '';
     _userId = '';
     final prefs = await SharedPreferences.getInstance();

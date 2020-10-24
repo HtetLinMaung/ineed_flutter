@@ -24,13 +24,27 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  String _profileImage = '';
   bool _loading = false;
-
+  TextEditingController _usernameController = TextEditingController();
+  bool _isUsername = true;
   final picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    final store = context.read<AppProvider>();
+    setState(() {
+      _usernameController.text = store.username;
+      _profileImage = store.profileImage;
+    });
+  }
 
   Future<void> _getImage() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
-    context.read<AppProvider>().setProfileImage(pickedFile.path);
+    setState(() {
+      _profileImage = pickedFile.path;
+    });
   }
 
   Future<void> _updateHandler() async {
@@ -40,12 +54,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final request =
           http.MultipartRequest('PUT', Uri.parse('$api/auth/edit-profile'));
       request.headers['Authorization'] = 'Bearer ${store.token}';
-      request.fields['username'] = store.usernameController.text;
-      final filename = store.profileImage.split('/').removeLast();
+      request.fields['username'] = _usernameController.text;
+      final filename = _profileImage.split('/').removeLast();
       final match = RegExp(r'\.(\w+)$').stringMatch(filename);
       final profileImage = await http.MultipartFile.fromPath(
         'profileImage',
-        store.profileImage,
+        _profileImage,
         filename: filename,
         contentType: MediaType('image', match.replaceAll('\.', '')),
       );
@@ -95,7 +109,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       store.setProfileImage(data['data']['profileImage'].isNotEmpty
           ? '$host/${data['data']['profileImage']}'
           : '');
-      store.usernameController.text = data['data']['username'];
+      store.setUsername(data['data']['username']);
       prefs.setString(
           'profileImage',
           data['data']['profileImage'].isNotEmpty
@@ -108,10 +122,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  ImageProvider<Object> _buildProfileImage() {
+    if (_profileImage.isEmpty) {
+      return AssetImage('assets/images/avatar-placeholder.webp');
+    } else if (_profileImage.startsWith("https")) {
+      return NetworkImage(_profileImage);
+    } else {
+      return FileImage(File(
+        _profileImage,
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final store = context.watch<AppProvider>();
-
     return GestureDetector(
       onTap: FocusScope.of(context).unfocus,
       child: Scaffold(
@@ -144,14 +168,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         onTap: _getImage,
                         child: CircleAvatar(
                           radius: 75,
-                          backgroundImage: store.profileImage.isEmpty
-                              ? AssetImage(
-                                  'assets/images/avatar-placeholder.webp')
-                              : FileImage(
-                                  File(
-                                    store.profileImage,
-                                  ),
-                                ),
+                          backgroundImage: _buildProfileImage(),
                         ),
                       ),
                     ],
@@ -173,8 +190,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   TextInput(
                     hintText: 'Enter your name',
-                    controller: store.usernameController,
-                    errorLabel: 'Email must not be empty!',
+                    controller: _usernameController,
+                    errorLabel: 'Username must not be empty!',
+                    state: _isUsername,
+                    onChange: (text) {
+                      setState(() {
+                        _isUsername = true;
+                        if (text.isEmpty) {
+                          _isUsername = false;
+                        }
+                      });
+                    },
                   ),
                   Row(
                     children: [

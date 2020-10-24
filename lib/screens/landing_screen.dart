@@ -34,8 +34,8 @@ class _LandingScreenState extends State<LandingScreen> {
         store.setProfileImage(profileImage);
       }
       final username = prefs.getString('username') ?? '';
-      if (username.isNotEmpty && store.usernameController.text.isEmpty) {
-        store.usernameController.text = username;
+      if (username.isNotEmpty && store.username.isEmpty) {
+        store.setUsername(username);
       }
       final userId = prefs.getString('userId') ?? '';
       if (userId.isNotEmpty && store.userId.isEmpty) {

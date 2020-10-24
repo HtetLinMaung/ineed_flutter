@@ -100,7 +100,7 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
       store.setProfileImage(data['data']['profileImage'].isNotEmpty
           ? '$host/${data['data']['profileImage']}'
           : '');
-      store.usernameController.text = data['data']['username'];
+      store.setUsername(data['data']['username']);
       prefs.setString(
           'profileImage',
           data['data']['profileImage'].isNotEmpty

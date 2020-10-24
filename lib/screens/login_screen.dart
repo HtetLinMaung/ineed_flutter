@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
             : '');
         store.setUserId(data['id']);
         store.setToken(data['token']);
-        store.usernameController.text = data['username'];
+        store.setUsername(data['username']);
 
         prefs.setString('profileImage', store.profileImage);
         prefs.setString('username', data['username']);
