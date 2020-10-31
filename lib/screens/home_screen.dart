@@ -129,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final store = context.watch<AppProvider>();
     final uniqueTags = getUniqueTags();
-    var needs = context.watch<NeedProvider>().needs.reversed.toList();
+    var needs = context.watch<NeedProvider>().needs;
     if (_currentTag > 0) {
       needs = needs
           .where((element) => element.tags

@@ -5,5 +5,9 @@ class Menu {
   final String text;
   final Function onTap;
 
-  Menu({this.icon, this.text, this.onTap});
+  Menu({
+    this.icon,
+    this.text,
+    this.onTap,
+  });
 }
